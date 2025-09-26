@@ -73,7 +73,44 @@ async function findAndPerformActionByType(selector, type, value = "") {
  * @property {string} selector - 用于查找元素的选择器
  * @property {ElementActionType} type - 操作类型
  * @property {string} [value] - 输入值，仅在输入操作时需要
+ * @property {number} [waitBefore] - 执行操作前等待的时间(毫秒)
+ * @property {number} [retries] - 失败时重试的次数
+ * @property {function} [onError] - 错误处理函数
  */
+
+/**
+ * 等待指定时间
+ * @param {number} ms - 等待的毫秒数
+ * @returns {Promise<void>}
+ */
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * 带重试机制执行操作
+ * @param {Function} action - 要执行的操作函数
+ * @param {number} retries - 重试次数
+ * @param {Function} [onError] - 错误处理函数
+ * @returns {Promise<boolean>}
+ */
+async function withRetry(action, retries, onError) {
+  let lastError;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const result = await action();
+      if (result) {
+        return true;
+      }
+    } catch (error) {
+      lastError = error;
+      if (onError) {
+        onError(error);
+      }
+    }
+  }
+  return false;
+}
 
 /**
  * 根据配置执行元素操作
@@ -81,8 +118,26 @@ async function findAndPerformActionByType(selector, type, value = "") {
  * @returns {Promise<boolean>} - 返回一个 Promise，成功执行操作返回 true，未找到元素或执行失败返回 false
  */
 async function performActionByConfig(config) {
-  const { selector, type, value = "" } = config;
-  return findAndPerformActionByType(selector, type, value);
+  const {
+    selector,
+    type,
+    value = "",
+    waitBefore = 0,
+    retries = 0,
+    onError,
+  } = config;
+
+  // 执行前等待
+  if (waitBefore > 0) {
+    await wait(waitBefore);
+  }
+
+  // 带重试机制执行操作
+  return withRetry(
+    async () => findAndPerformActionByType(selector, type, value),
+    retries,
+    onError
+  );
 }
 
 /**
@@ -96,29 +151,45 @@ async function performActionsByConfigs(configs) {
 
 /**
  * 配置文件实例，展示如何使用 ElementConfig 类型配置元素操作
+ * 除了元素选择器、操作类型，还抽象了等待时间、重试次数和错误处理行为
  */
 const configExamples = [
   {
     selector: "#login-button",
     type: ElementActionType.CLICK,
+    waitBefore: 1000, // 执行操作前等待 1 秒
+    retries: 3, // 失败时重试 3 次
+    onError: (error) => console.error("点击登录按钮失败:", error), // 错误处理函数
   },
   {
     selector: "#username-input",
     type: ElementActionType.INPUT,
     value: "testUser",
+    waitBefore: 500, // 执行操作前等待 0.5 秒
+    retries: 2, // 失败时重试 2 次
+    onError: (error) => console.error("输入用户名失败:", error), // 错误处理函数
   },
   {
     selector: "#password-input",
     type: ElementActionType.INPUT,
     value: "testPassword",
+    waitBefore: 500, // 执行操作前等待 0.5 秒
+    retries: 2, // 失败时重试 2 次
+    onError: (error) => console.error("输入密码失败:", error), // 错误处理函数
   },
   {
     selector: "#welcome-message",
     type: ElementActionType.READ_TEXT,
+    waitBefore: 2000, // 执行操作前等待 2 秒
+    retries: 1, // 失败时重试 1 次
+    onError: (error) => console.error("读取欢迎消息失败:", error), // 错误处理函数
   },
   {
     selector: "#search-input",
     type: ElementActionType.FOCUS,
+    waitBefore: 300, // 执行操作前等待 0.3 秒
+    retries: 2, // 失败时重试 2 次
+    onError: (error) => console.error("聚焦搜索框失败:", error), // 错误处理函数
   },
 ];
 
