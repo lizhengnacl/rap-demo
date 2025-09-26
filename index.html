@@ -15,6 +15,79 @@
     <input id="password-input" type="text" placeholder="Password" />
     <div id="welcome-message">welcome-message</div>
     <input id="search-input" type="text" placeholder="Search" />
-    <script src="demo.js"></script>
+    <div style="position: fixed; top: 10px; right: 10px">
+      <span
+        id="recording-status"
+        style="
+          width: 10px;
+          height: 10px;
+          background-color: red;
+          border-radius: 50%;
+          animation: blink 1s infinite;
+          margin-right: 5px;
+        "
+      ></span>
+      <button id="start-recording" onclick="startRecording()">开始录制</button>
+      <button id="pause-recording" onclick="stopRecording()">暂停录制</button>
+      <button id="clear-inputs" onclick="clearInputFields()">清空输入框</button>
+      <button id="playback" onclick="playbackRecording()">回放</button>
+    </div>
+    <style>
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
+    <pre id="recorded-config"></pre>
+    <script src="recorder.js"></script>
+    <script src="executor.js"></script>
+    <script>
+      function clearInputFields() {
+        const inputs = document.querySelectorAll('input[type="text"]');
+        inputs.forEach((input) => {
+          input.value = "";
+        });
+      }
+    </script>
+    <script>
+      // 初始化录制器实例
+      const recorder = new VisualRecorder();
+
+      // 启动录制的函数
+      function startRecording() {
+        const recordingStatus = document.getElementById("recording-status");
+        recordingStatus.style.display = "inline-block";
+        recorder.startRecording();
+      }
+
+      // 暂停录制的函数
+      function stopRecording() {
+        const recordingStatus = document.getElementById("recording-status");
+        recordingStatus.style.display = "none";
+        recorder.stopRecording();
+        const recordedConfig = recorder.getRecordedConfig();
+        document.getElementById(
+          "recorded-config"
+        ).textContent = `recordedConfig: ${JSON.stringify(
+          recordedConfig,
+          null,
+          2
+        )}`;
+      }
+
+      function playbackRecording() {
+        const recordedConfig = recorder.getRecordedConfig();
+        if (recordedConfig.length === 0) {
+          console.error("No recorded actions to playback.");
+          return;
+        }
+
+        (async () => {
+          const results = await performActionsByConfigs(recordedConfig);
+          console.log("操作执行结果:", results);
+        })();
+      }
+    </script>
   </body>
 </html>
