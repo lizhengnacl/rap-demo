@@ -70,8 +70,8 @@ class VisualRecorder {
     const config = {
       selector,
       type: ElementActionType.CLICK,
-      waitBefore: 1000,
-      retries: 3,
+      waitBefore: 200,
+      retries: 2,
       onError: (error) => console.error(`点击 ${selector} 失败:`, error),
     };
     this.recordedConfig.push(config);
@@ -88,7 +88,7 @@ class VisualRecorder {
       selector,
       type: ElementActionType.INPUT,
       value: element.value,
-      waitBefore: 500,
+      waitBefore: 200,
       retries: 2,
       onError: (error) => console.error(`输入到 ${selector} 失败:`, error),
     };
@@ -105,7 +105,7 @@ class VisualRecorder {
     const config = {
       selector,
       type: ElementActionType.FOCUS,
-      waitBefore: 300,
+      waitBefore: 200,
       retries: 2,
       onError: (error) => console.error(`聚焦 ${selector} 失败:`, error),
     };
