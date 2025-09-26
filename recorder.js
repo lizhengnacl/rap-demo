@@ -10,6 +10,8 @@ class VisualRecorder {
   constructor() {
     this.recordedConfig = [];
     this.eventListeners = {};
+    // 添加一个标志位，用于标记是否是第一次点击
+    this.isFirstClick = true;
   }
 
   /**
@@ -58,6 +60,11 @@ class VisualRecorder {
    * @param {Event} event - 点击事件对象
    */
   _handleClick(event) {
+    // 如果是第一次点击，不记录配置并将标志位设为 false
+    if (this.isFirstClick) {
+      this.isFirstClick = false;
+      return;
+    }
     const element = event.target;
     const selector = this._getElementSelector(element);
     const config = {
