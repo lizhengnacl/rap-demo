@@ -4,42 +4,186 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RPA Demo Test</title>
-  </head>
-  <body>
-    <h1>RPA Demo Test Page</h1>
-    <p>This page is used to test the demo.js script.</p>
-    <button id="login-button" onclick="console.log('Login button clicked')">
-      Login
-    </button>
-    <input id="username-input" type="text" placeholder="Username" />
-    <input id="password-input" type="text" placeholder="Password" />
-    <div id="welcome-message">welcome-message</div>
-    <input id="search-input" type="text" placeholder="Search" />
-    <div style="position: fixed; top: 10px; right: 10px">
-      <span
-        id="recording-status"
-        style="
-          width: 10px;
-          height: 10px;
-          background-color: red;
-          border-radius: 50%;
-          animation: blink 1s infinite;
-          margin-right: 5px;
-        "
-      ></span>
-      <button id="start-recording" onclick="startRecording()">开始录制</button>
-      <button id="pause-recording" onclick="stopRecording()">暂停录制</button>
-      <button id="clear-inputs" onclick="clearInputFields()">清空输入框</button>
-      <button id="playback" onclick="playbackRecording()">回放</button>
-    </div>
     <style>
+      :root {
+        --primary-color: #4285f4;
+        --secondary-color: #34a853;
+        --danger-color: #ea4335;
+        --background-color: #f5f5f5;
+        --text-color: #333;
+        --card-bg: #fff;
+        --border-radius: 8px;
+        --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: var(--card-bg);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+      }
+
+      h1 {
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      p {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #666;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        max-width: 300px;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        margin: 5px 0;
+        box-sizing: border-box;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+      }
+
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #3367d6;
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      #login-button {
+        background-color: var(--secondary-color);
+      }
+
+      #login-button:hover {
+        background-color: #2d944a;
+      }
+
+      #clear-inputs {
+        background-color: var(--danger-color);
+      }
+
+      #clear-inputs:hover {
+        background-color: #d33426;
+      }
+
+      .controls {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--card-bg);
+        padding: 15px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      #recording-status {
+        display: none;
+        width: 12px;
+        height: 12px;
+        background-color: red;
+        border-radius: 50%;
+        animation: blink 1s infinite;
+      }
+
+      #welcome-message {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #e8f5e9;
+        border-radius: var(--border-radius);
+        color: var(--secondary-color);
+        font-weight: bold;
+      }
+
+      #recorded-config {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin-top: 30px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
       @keyframes blink {
         50% {
           opacity: 0;
         }
       }
     </style>
-    <pre id="recorded-config"></pre>
+  </head>
+  <body>
+    <div class="container">
+      <h1>RPA Demo Test Page</h1>
+      <p>This page is used to test the demo.js script.</p>
+      <div class="form-group">
+        <button id="login-button" onclick="console.log('Login button clicked')">
+          Login
+        </button>
+      </div>
+      <div class="form-group">
+        <input id="username-input" type="text" placeholder="Username" />
+      </div>
+      <div class="form-group">
+        <input id="password-input" type="text" placeholder="Password" />
+      </div>
+      <div id="welcome-message">welcome-message</div>
+      <div class="form-group">
+        <input id="search-input" type="text" placeholder="Search" />
+      </div>
+      <div class="controls">
+        <span id="recording-status"></span>
+        <button id="start-recording" onclick="startRecording()">
+          开始录制
+        </button>
+        <button id="pause-recording" onclick="stopRecording()">暂停录制</button>
+        <button id="clear-inputs" onclick="clearInputFields()">
+          清空输入框
+        </button>
+        <button id="playback" onclick="playbackRecording()">回放</button>
+      </div>
+      <pre id="recorded-config"></pre>
+    </div>
     <script src="recorder.js"></script>
     <script src="executor.js"></script>
     <script>
