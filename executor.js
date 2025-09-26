@@ -146,7 +146,11 @@ async function performActionByConfig(config) {
  * @returns {Promise<boolean[]>} - 返回一个 Promise，包含每个操作的执行结果
  */
 async function performActionsByConfigs(configs) {
-  return Promise.all(configs.map((config) => performActionByConfig(config)));
+  const results = [];
+  for (const config of configs) {
+    results.push(await performActionByConfig(config));
+  }
+  return results;
 }
 
 // /**
